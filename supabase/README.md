@@ -25,3 +25,7 @@ Your website keeps its data as documents in `kv`. The `reports` schema turns the
 
 In the SQL Editor, for example: `select * from reports.bookings order by created_at desc;`
 They are private. The public key cannot see them, and the website does not use them.
+
+## The real tables (`public.bookings`, `blog_posts`, `blog_comments`, `subscribers`, `messages`, `events`, `writers`, `activity_log`)
+
+These are normal tables you can browse in Supabase's Table Editor, filter, sort and export. They are **read-only copies**: every time the website saves, a trigger refreshes them from `kv`. Do not edit rows here (the next save overwrites them); change data in the dashboard instead. If a record has data the copy cannot read, the website still saves normally and only the copy skips that save (see Logs > Postgres for a warning). Blog post bodies are not copied, only the details (title, author, views, dates).
