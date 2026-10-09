@@ -12,7 +12,8 @@ const SB_URL = String(process.env.SUPABASE_URL || '').replace(/\/+$/, ''), SB_KE
 const remote = !!(SB_URL && SB_KEY);
 const cache = {}, timers = {}, dirty = new Set();
 const file = n => path.join(DIR, n + '.json');
-const hdr = extra => ({ apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, ...extra });
+// older "service_role" keys are JWTs (start with eyJ) and also go in Authorization; the newer "sb_secret_..." keys go in apikey only
+const hdr = extra => ({ apikey: SB_KEY, ...(SB_KEY.startsWith('eyJ') ? { Authorization: 'Bearer ' + SB_KEY } : {}), ...extra });
 const web = (url, opt, ms = 20000) => fetch(url, { ...opt, signal: AbortSignal.timeout(ms) });
 const TYPES = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', svg: 'image/svg+xml', mp4: 'video/mp4', webm: 'video/webm' };
 
