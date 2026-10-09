@@ -1,0 +1,53 @@
+/* ===== Responsive ===== */
+@media (max-width: 1080px) {
+  .nav a { padding: 8px 10px; font-size: .9rem; }
+  .cta-head { display: none; }
+}
+@media (max-width: 900px) {
+  :root { --head-h: 64px; }
+  .menu-btn { display: inline-grid; }
+  .nav { position: fixed; inset: var(--head-h) 0 auto 0; flex-direction: column; gap: 0; padding: 12px 16px 24px; background: var(--bg); border-bottom: 1px solid var(--line); transform: translateY(-8px); opacity: 0; visibility: hidden; transition: all .25s var(--ease); margin: 0; }
+  .nav.open { transform: none; opacity: 1; visibility: visible; }
+  .nav a { padding: 16px 12px; font-size: 1.05rem; border-radius: 10px; }
+  .tools { margin-left: auto; }
+  .hero { padding-top: calc(var(--head-h) + 32px); }
+  .hero-grid, .split, .community, .about-grid, .contact, .nl-card { grid-template-columns: 1fr; }
+  .hero-visual { width: min(80%, 380px); order: -1; margin-bottom: 8px; }
+  .f1 { left: -6%; } .f2 { right: -8%; }
+  .plat-grid { grid-template-columns: repeat(2, 1fr); }
+  .pillar-grid, .post-grid, .ev-grid { grid-template-columns: 1fr; }
+  .pillar { min-height: 0; }
+  .process { grid-template-columns: repeat(2, 1fr); }
+  .process li:nth-child(2) { border-right: 0; }
+  .process li:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .about-photo { max-width: 420px; }
+  .section, .audience, .pillars { padding: 72px 0; }
+  .newsletter { padding: 72px 0; }
+  .foot { grid-template-columns: 1fr; }
+  .foot-nav { justify-content: flex-start; }
+}
+@media (min-width: 640px) and (max-width: 900px) {
+  .post-grid, .ev-grid { grid-template-columns: repeat(2, 1fr); }
+  .ev-grid .feature { grid-column: 1/-1; }
+}
+@media (max-width: 520px) {
+  .wrap { width: min(100% - 32px, var(--wrap)); }
+  .lang-btn { padding: 0 10px; }
+  .tools { gap: 6px; }
+  .brand-name { display: none; }
+  .hero-total { gap: 28px; }
+  .values { grid-template-columns: 1fr; }
+  .nl-row { flex-direction: column; border-radius: 22px; padding: 8px; }
+  .nl-row .btn { width: 100%; }
+  .form { padding: 22px; }
+  .plat { padding: 18px; }
+  .plat-top { gap: 8px; font-size: .95rem; }
+  .plat-ico { width: 34px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  .reveal { opacity: 1; transform: none; }
+  .marquee { overflow-x: auto; }
+}
+

@@ -1,0 +1,435 @@
+{
+ "posts": [
+  {
+   "cat": "ai",
+   "min": 6,
+   "date": "2026-09-28",
+   "thumb": "/assets/samples/post-1.svg",
+   "href": "/blog/how-ai-is-changing-the-way-somali-creators-work",
+   "video": true,
+   "en": [
+    "How AI is changing the way Somali creators work",
+    "Practical AI workflows for scripting, translation and editing you can start using today."
+   ],
+   "so": [
+    "Sida AI u beddelayso shaqada abuureyaasha Soomaaliyeed",
+    "Habab AI oo wax ku ool ah oo qorista qoraalka, tarjumaadda iyo tafatirka ah oo maanta bilaabi karto."
+   ]
+  },
+  {
+   "cat": "gadgets",
+   "min": 5,
+   "date": "2026-09-14",
+   "thumb": "/assets/samples/post-2.svg",
+   "href": "/blog/best-budget-phones-for-creators",
+   "en": [
+    "Best budget phones for creators in 2026",
+    "Camera, battery and value compared, what to buy and what to skip."
+   ],
+   "so": [
+    "Taleefannada ugu fiican ee qiimaha jaban ee abuureyaasha 2026",
+    "Kamarada, batariga iyo qiimaha oo la is barbar dhigay, waxa la iibsado iyo waxa laga tago."
+   ]
+  },
+  {
+   "cat": "growth",
+   "min": 8,
+   "date": "2026-08-30",
+   "thumb": "/assets/samples/post-3.svg",
+   "href": "/blog/from-zero-to-100k-channel-growth-playbook",
+   "video": true,
+   "en": [
+    "From 0 to 100K: a channel growth playbook",
+    "The content pillars, posting rhythm and analytics habits behind steady growth."
+   ],
+   "so": [
+    "0 ilaa 100K: buug-gacmeed koboca kanaalka",
+    "Tiirarka nuxurka, xawaaraha daabacaadda iyo caadooyinka falanqaynta ee ka danbeeya kobocka joogtada ah."
+   ]
+  },
+  {
+   "cat": "dev",
+   "min": 7,
+   "date": "2026-08-12",
+   "en": [
+    "Start coding in Somali: a beginner roadmap",
+    "A free, step-by-step path from first line of code to your first project."
+   ],
+   "so": [
+    "Ku bilow barnaamijka Soomaali: khariidad bilow ah",
+    "Waddo bilaash ah oo tallaabo-tallaabo ah laga bilaabo xariiqda koowaad ee koodka ilaa mashruucaaga koowaad."
+   ]
+  },
+  {
+   "cat": "ai",
+   "min": 4,
+   "date": "2026-07-25",
+   "en": [
+    "5 free AI tools every student should know",
+    "Study smarter with tools that cost nothing and save hours every week."
+   ],
+   "so": [
+    "5 qalab AI ah oo bilaash ah oo arday kasta ogaado",
+    "Ku baro si caqli badan qalab aan waxba kaa qaadin oo saacado ku badbaadiya toddobaad kasta."
+   ]
+  },
+  {
+   "cat": "growth",
+   "min": 6,
+   "date": "2026-07-04",
+   "en": [
+    "How brands should work with creators",
+    "Briefs, budgets and trust: a short guide to partnerships that actually perform."
+   ],
+   "so": [
+    "Sida shirkaduhu ula shaqeeyaan abuureyaasha",
+    "Tilmaamo, miisaaniyad iyo aamin: hage kooban oo ku saabsan lammaanaysi dhabta u shaqeeya."
+   ]
+  }
+ ],
+ "events": [
+  {
+   "feature": true,
+   "type": "conference",
+   "icon": "mic",
+   "tag": [
+    "Keynote",
+    "Hadal Muhiim ah"
+   ],
+   "date": "2026-11-20",
+   "place": "Venue to be announced",
+   "images": [
+    "/assets/samples/event-1.svg",
+    "/assets/samples/event-2.svg",
+    "/assets/samples/event-3.svg",
+    "/assets/samples/event-4.svg"
+   ],
+   "article": {
+    "en": "DEMO STORY. A full-day gathering for builders, creators and brands shaping the Somali digital future.\n\nThis is where the highlights of your event go: the topic of your keynote, the questions from the audience, the people you met. Add 1–4 photos in the dashboard, the first one is the cover.",
+    "so": "TIJAABO. Maalin buuxda oo loogu talagalay dhisayaasha, abuureyaasha iyo shirkadaha qaabeynaya mustaqbalka dijitaalka Soomaaliyeed.\n\nHalkan ayaa lagu qoraa xusuusta dhacdadaada."
+   },
+   "en": [
+    "Somali Tech & Creators Summit",
+    "A full-day gathering for builders, creators and brands shaping the Somali digital future."
+   ],
+   "so": [
+    "Shirka Tiknolojiyada & Abuureyaasha Soomaaliyeed",
+    "Maalin buuxda oo loogu talagalay dhisayaasha, abuureyaasha iyo shirkadaha qaabeynaya mustaqbalka dijitaalka Soomaaliyeed."
+   ]
+  },
+  {
+   "type": "workshop",
+   "icon": "cap",
+   "tag": [
+    "Workshop",
+    "Aqoon-isweydaarsi"
+   ],
+   "date": "2026-12-05",
+   "place": "Online",
+   "images": [
+    "/assets/samples/event-3.svg",
+    "/assets/samples/event-1.svg"
+   ],
+   "article": {
+    "en": "DEMO STORY. A hands-on workshop on using AI tools to plan, write and edit faster.\n\nDescribe what participants will learn and what to bring.",
+    "so": "TIJAABO. Aqoon-isweydaarsi wax ku ool ah oo ku saabsan isticmaalka qalabka AI si loo qorsheeyo, loo qoro loona tafatiro degdeg."
+   },
+   "en": [
+    "AI for Content Creators",
+    "A hands-on workshop on using AI tools to plan, write and edit faster."
+   ],
+   "so": [
+    "AI loogu talagalay Abuureyaasha",
+    "Aqoon-isweydaarsi wax ku ool ah oo ku saabsan isticmaalka qalabka AI si loo qorsheeyo, loo qoro loona tafatiro degdeg."
+   ]
+  },
+  {
+   "type": "media",
+   "icon": "video",
+   "tag": [
+    "Media",
+    "Warbaahin"
+   ],
+   "date": "2027-01-15",
+   "place": "YouTube",
+   "images": [
+    "/assets/samples/event-2.svg"
+   ],
+   "article": {
+    "en": "",
+    "so": ""
+   },
+   "en": [
+    "The Yuyu Tech Show: Season launch",
+    "New season of interviews and deep dives with founders and engineers."
+   ],
+   "so": [
+    "Bandhigga Yuyu Tech: Bilowga xilli cusub",
+    "Xilli cusub oo wareysiyo iyo falanqayn qoto dheer ah oo lala yeeshay aasaasayaasha iyo injineerrada."
+   ]
+  },
+  {
+   "type": "conference",
+   "icon": "mic",
+   "tag": [
+    "Conference",
+    "Shir"
+   ],
+   "date": "2026-09-12",
+   "place": "Demo City",
+   "images": [
+    "/assets/samples/event-1.svg",
+    "/assets/samples/event-2.svg",
+    "/assets/samples/event-3.svg",
+    "/assets/samples/event-4.svg"
+   ],
+   "article": {
+    "en": "DEMO STORY. How a past conference looks on your site: four photos, the key moments of your talk and what the audience asked.\n\nWrite two or three short paragraphs about what happened.",
+    "so": "TIJAABO. Sida shir hore ugu muuqdo goobtaada."
+   },
+   "en": [
+    "Demo conference keynote",
+    "A demo past conference with four photos. Replace it with your own event."
+   ],
+   "so": [
+    "Hadal shir tijaabo ah",
+    "Shir hore oo tijaabo ah oo leh afar sawir."
+   ]
+  },
+  {
+   "type": "panel",
+   "icon": "mic",
+   "tag": [
+    "Panel",
+    "Guddi"
+   ],
+   "date": "2026-07-03",
+   "place": "Online",
+   "images": [
+    "/assets/samples/event-3.svg",
+    "/assets/samples/event-1.svg"
+   ],
+   "article": {
+    "en": "DEMO STORY. A panel discussion about digital safety for communities.",
+    "so": "TIJAABO. Wada-hadal guddi ah oo ku saabsan badbaadada dijitaalka."
+   },
+   "en": [
+    "Demo panel on digital safety",
+    "A demo panel with two photos."
+   ],
+   "so": [
+    "Guddi tijaabo ah oo ku saabsan badbaadada dijitaalka",
+    "Guddi tijaabo ah oo laba sawir leh."
+   ]
+  },
+  {
+   "type": "attended",
+   "icon": "cap",
+   "tag": [
+    "Attended",
+    "Ka qaybgalay"
+   ],
+   "date": "2026-05-18",
+   "place": "Demo Expo",
+   "images": [
+    "/assets/samples/event-4.svg"
+   ],
+   "article": {
+    "en": "",
+    "so": ""
+   },
+   "en": [
+    "Attended a tech expo",
+    "A demo event with a single cover photo."
+   ],
+   "so": [
+    "Ka qaybgal bandhig tiknolojiyo",
+    "Dhacdo tijaabo ah oo hal sawir leh."
+   ]
+  }
+ ],
+ "partners": [
+  {
+   "name": "Taran",
+   "logo": "/assets/partners/taran.svg",
+   "logoDark": "/assets/partners/taran-dark.svg",
+   "dark": "custom"
+  },
+  {
+   "name": "Keshflip",
+   "logo": "/assets/partners/keshflip.svg",
+   "logoDark": "/assets/partners/keshflip-dark.svg",
+   "dark": "custom"
+  },
+  {
+   "name": "Amka",
+   "logo": "/assets/partners/amka.svg",
+   "logoDark": "/assets/partners/amka-dark.svg",
+   "dark": "custom"
+  },
+  {
+   "name": "Sanguuni",
+   "logo": "/assets/partners/sanguuni.svg",
+   "logoDark": "/assets/partners/sanguuni-dark.svg",
+   "dark": "custom"
+  }
+ ],
+ "community": [
+  {
+   "icon": "play",
+   "name": "YouTube",
+   "en": "New videos every week",
+   "so": "Muuqaallo cusub toddobaad kasta",
+   "href": "https://www.youtube.com/@engyuyu"
+  },
+  {
+   "icon": "chat",
+   "name": "Telegram",
+   "en": "Daily tech drops & chat",
+   "so": "Wararka tiknolojiyada & sheeko",
+   "href": "#"
+  },
+  {
+   "icon": "users",
+   "name": "Facebook",
+   "en": "Join the discussion group",
+   "so": "Ku biir kooxda wada-hadalka",
+   "href": "https://www.facebook.com/share/1LymomoL4L/"
+  }
+ ],
+ "proof": [
+  {
+   "id": "p1",
+   "metric": "1M+",
+   "en": [
+    "A community built on trust",
+    "Grew an audience of over a million people across YouTube, Facebook, TikTok and Instagram by teaching technology in plain language."
+   ],
+   "so": [
+    "Bulsho ku dhisan aamin",
+    "Waxaan kobciyay dhagaystayaal ka badan hal milyan oo ku kala jira YouTube, Facebook, TikTok iyo Instagram anigoo tiknolojiyada ku sharaxaya af fudud."
+   ]
+  },
+  {
+   "id": "p2",
+   "metric": "Hundreds",
+   "en": [
+    "Educational videos",
+    "Practical videos on smartphones, AI, digital safety and online skills, in Somali and English."
+   ],
+   "so": [
+    "Muuqaallo waxbarasho",
+    "Muuqaallo wax ku ool ah oo ku saabsan taleefannada, AI, badbaadada dijitaalka iyo xirfadaha online-ka, Soomaali iyo Ingiriisi."
+   ]
+  },
+  {
+   "id": "p3",
+   "metric": "Millions",
+   "en": [
+    "Live events & programs",
+    "Tech talks, workshops and community programs that have reached millions of people."
+   ],
+   "so": [
+    "Dhacdooyin toos ah & barnaamijyo",
+    "Hadallo tiknolojiyo, aqoon-isweydaarsiyo iyo barnaamijyo bulsho oo gaaray malaayiin qof."
+   ]
+  },
+  {
+   "id": "p4",
+   "metric": "4+",
+   "en": [
+    "Brand collaborations",
+    "Education-led partnerships with Taran, Keshflip, Amka and Sanguuni."
+   ],
+   "so": [
+    "Wada-shaqayn shirkado",
+    "Lammaanayaal waxbarasho ku dhisan oo lala yeeshay Taran, Keshflip, Amka iyo Sanguuni."
+   ]
+  }
+ ],
+ "testimonials": [],
+ "media": [],
+ "sessions": [
+  {
+   "id": "quick",
+   "slug": "quick",
+   "min": 30,
+   "price": 10,
+   "payUrl": "",
+   "en": [
+    "Quick Session",
+    ""
+   ],
+   "so": [
+    "Kulan Degdeg ah",
+    ""
+   ],
+   "inc": {
+    "en": [
+     "One main question or issue",
+     "Quick diagnosis and guidance",
+     "Clear next steps"
+    ],
+    "so": [
+     "Hal su’aal ama dhibaato oo ugu muhiimsan",
+     "Baaris degdeg ah iyo hage",
+     "Tallaabooyin xiga oo cad"
+    ]
+   }
+  },
+  {
+   "id": "focus",
+   "slug": "focus",
+   "min": 45,
+   "price": 12,
+   "payUrl": "",
+   "en": [
+    "Focus Session",
+    ""
+   ],
+   "so": [
+    "Kulan Diiradaysan",
+    ""
+   ],
+   "inc": {
+    "en": [
+     "One or more related questions",
+     "Deeper discussion and troubleshooting",
+     "Practical recommendations"
+    ],
+    "so": [
+     "Hal su’aal ama dhowr su’aalood oo isku xiga",
+     "Wada hadal qoto dheer iyo xallinta dhibaatada",
+     "Talooyin la dhaqmi karo"
+    ]
+   }
+  },
+  {
+   "id": "full",
+   "slug": "full",
+   "min": 60,
+   "price": 15,
+   "payUrl": "",
+   "en": [
+    "Full Session",
+    ""
+   ],
+   "so": [
+    "Kulan Buuxa",
+    ""
+   ],
+   "inc": {
+    "en": [
+     "Multiple questions or a complex issue",
+     "Detailed discussion and guidance",
+     "Personalized action plan"
+    ],
+    "so": [
+     "Su’aalo badan ama dhibaato adag",
+     "Wada hadal faahfaahsan iyo hage",
+     "Qorshe shaqo oo adiga kuu gaar ah"
+    ]
+   }
+  }
+ ]
+}

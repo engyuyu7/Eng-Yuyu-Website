@@ -1,0 +1,41 @@
+/* ===== Smooth motion layer ===== */
+:root { --dur: .28s; }
+/* page-to-page: cross-fade between pages while the header stays put (Chrome/Edge/Safari 18.2+) */
+@view-transition { navigation: auto; }
+.site-header { view-transition-name: site-header; }
+::view-transition-group(site-header) { animation-duration: 0s; }
+::view-transition-old(root) { animation: vt-out .2s ease both; }
+::view-transition-new(root) { animation: vt-in .34s var(--ease) both; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(6px); } }
+/* browsers without view transitions: gentle fade-in on load */
+@supports not (view-transition-name: none) { body { animation: vt-in .45s var(--ease) both; } }
+/* theme/language switch fallback */
+.theme-anim, .theme-anim *, .theme-anim *::before, .theme-anim *::after { transition: background-color .35s ease, color .35s ease, border-color .35s ease, fill .35s ease, stroke .35s ease, box-shadow .35s ease !important; }
+/* consistent micro-interactions */
+a, button, .chip, .btn, .plat, .pillar, .post, .ev, .service, .cover, .session label, .find, .com-link, .partner { transition-property: transform, background-color, border-color, color, box-shadow, opacity; transition-duration: var(--dur); transition-timing-function: var(--ease); }
+.btn:active, .chip:active, .icon-btn:active { transform: scale(.97); }
+.site-header { transition: box-shadow .3s ease, background-color .3s ease, height .3s var(--ease); }
+.site-header.scrolled { box-shadow: 0 10px 30px -18px rgba(11,31,58,.45); }
+/* staggered rise for cards that are re-rendered (blog filter, language switch, session picker) */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.post, .ev { animation: rise .5s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 55ms); }
+.session, .native .chip, .service { animation: rise .4s var(--ease) backwards; }
+.native #slotWrap, .req-form, .req-done, .pay-box:not([hidden]) { animation: rise .35s var(--ease) backwards; }
+/* images ease in */
+.portrait img, .story-photo img { animation: vt-in .8s var(--ease) backwards; }
+/* dialogs and menus */
+.search[open] { animation: pop .22s var(--ease) backwards; }
+.search[open]::backdrop { animation: fade .22s ease both; }
+@keyframes pop { from { opacity: 0; transform: translateY(-10px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } }
+.faq details > p { animation: rise .3s var(--ease) backwards; }
+.nav { transition: transform .3s var(--ease), opacity .25s ease, visibility .25s; }
+/* smoother reveal */
+.reveal { transition: opacity .8s var(--ease), transform .8s var(--ease); will-change: opacity, transform; }
+.reveal.in { will-change: auto; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .post, .ev, .session, .native .chip, .service, .portrait img, .story-photo img, .search[open], .faq details > p { animation: none !important; }
+}
+

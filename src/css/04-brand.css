@@ -1,0 +1,36 @@
+/* ===== Brand pattern & shapes (from the Eng Yuyu post template) ===== */
+.hero::before { content: ""; position: absolute; inset: auto 0 0 0; height: 120px; background: var(--pattern); opacity: .5; -webkit-mask: linear-gradient(0deg, #000, transparent); mask: linear-gradient(0deg, #000, transparent); z-index: -1; }
+:root[data-theme="light"] .hero::before { filter: invert(1) hue-rotate(180deg) saturate(3); opacity: .35; }
+.shape { position: absolute; z-index: -1; width: 135%; left: -18%; top: -6%; fill: none; stroke: var(--accent); stroke-opacity: .35; stroke-width: 1.2; pointer-events: none; }
+.site-footer { position: relative; overflow: hidden; }
+.site-footer::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 80px; background: var(--pattern); opacity: .25; -webkit-mask: linear-gradient(180deg, #000, transparent); mask: linear-gradient(180deg, #000, transparent); }
+:root[data-theme="light"] .site-footer::before { filter: invert(1) hue-rotate(180deg) saturate(3); opacity: .2; }
+.site-footer .wrap { position: relative; }
+.handle { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; }
+.handle a { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); color: var(--muted); transition: color .2s, border-color .2s, background .2s; }
+.handle a:hover { color: #fff; background: var(--blue); border-color: var(--blue); }
+.handle svg { width: 20px; height: 20px; fill: currentColor; stroke: none; }
+.handle span { font: 700 1rem var(--font-h); margin-left: 8px; color: var(--text); }
+.foot-brand .brand-sub { color: var(--accent); font: 700 .8rem var(--font-h); letter-spacing: .14em; text-transform: uppercase; margin-top: 18px; }
+.nav a.active { color: var(--accent); }
+
+/* ===== Official social brand colors ===== */
+.plat[data-p="youtube"] .plat-ico, .handle [data-p="youtube"] { color: #FF0000; }
+.plat[data-p="facebook"] .plat-ico, .handle [data-p="facebook"] { color: #1877F2; }
+.plat[data-p="instagram"] .plat-ico svg, .handle [data-p="instagram"] svg { fill: url(#igGrad); }
+.plat[data-p="tiktok"] .plat-ico, .handle [data-p="tiktok"] { color: #000; }
+.plat[data-p="youtube"] .plat-ico { background: rgba(255,0,0,.12); }
+.plat[data-p="facebook"] .plat-ico { background: rgba(24,119,242,.14); }
+.plat[data-p="instagram"] .plat-ico { background: linear-gradient(135deg, rgba(254,218,117,.22), rgba(214,41,118,.18) 55%, rgba(79,91,213,.2)); }
+.plat[data-p="tiktok"] .plat-ico { background: rgba(37,244,238,.12); }
+:root[data-theme="dark"] .plat[data-p="tiktok"] .plat-ico, :root[data-theme="dark"] .handle [data-p="tiktok"] { color: #fff; }
+.plat[data-p="tiktok"] .plat-ico svg, .handle [data-p="tiktok"] svg { filter: drop-shadow(-1px -1px 0 #25F4EE) drop-shadow(1px 1px 0 #FE2C55); }
+.handle a[data-p] { background: var(--surface); }
+.handle a[data-p]:hover { color: inherit; background: var(--surface-2); border-color: var(--text); transform: translateY(-2px); }
+.handle [data-p="youtube"]:hover { color: #FF0000; } .handle [data-p="facebook"]:hover { color: #1877F2; }
+:root[data-theme="dark"] .handle [data-p="tiktok"]:hover { color: #fff; } :root[data-theme="light"] .handle [data-p="tiktok"]:hover { color: #000; }
+.handle a { transition: transform .2s var(--ease), border-color .2s, background .2s; }
+.plat[data-p="youtube"]:hover { border-color: #FF0000; } .plat[data-p="facebook"]:hover { border-color: #1877F2; }
+.plat[data-p="instagram"]:hover { border-color: #D62976; } .plat[data-p="tiktok"]:hover { border-color: #25F4EE; }
+.plat::after { display: none; }
+

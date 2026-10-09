@@ -1,0 +1,81 @@
+/* ===== Brand fonts (from /Branding): Univia Pro for display, Roboto for text ===== */
+@font-face{font-family:"Univia Pro";src:url(assets/fonts/UniviaPro-Light.otf) format("opentype");font-weight:300;font-display:swap}
+@font-face{font-family:"Univia Pro";src:url(assets/fonts/UniviaPro-Book.otf) format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:"Univia Pro";src:url(assets/fonts/UniviaPro-Medium.otf) format("opentype");font-weight:500;font-display:swap}
+@font-face{font-family:"Univia Pro";src:url(assets/fonts/UniviaPro-Bold.otf) format("opentype");font-weight:700;font-display:swap}
+@font-face{font-family:"Univia Pro";src:url(assets/fonts/UniviaPro-Black.otf) format("opentype");font-weight:900;font-display:swap}
+@font-face{font-family:"Roboto";src:url(assets/fonts/Roboto-Regular.ttf) format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Roboto";src:url(assets/fonts/Roboto-Medium.ttf) format("truetype");font-weight:500;font-display:swap}
+@font-face{font-family:"Roboto";src:url(assets/fonts/Roboto-Bold.ttf) format("truetype");font-weight:700;font-display:swap}
+
+/* ===== Eng Yuyu | design tokens ===== */
+:root {
+  --blue: #006AFF;            /* exact brand blue: rgb(0,106,255) from Eng Yuyu Brand.ai */
+  --navy: #0B1F3A;
+  --deep: #06111F;
+  --white: #FFFFFF;
+  --mist: #F5F8FC;
+
+  --r-s: 10px; --r-m: 16px; --r-l: 24px;
+  --ease: cubic-bezier(.22,.8,.3,1);
+  --font-h: "Univia Pro", "Roboto", system-ui, sans-serif;
+  --font-b: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='30' viewBox='0 0 44 30' fill='none' stroke='%23fff' stroke-opacity='.22' stroke-width='1'%3E%3Cpath d='M12 4h9c1.600 0 2.200 1 1.500 2.400L14.500 24c-.6 1.200-1.600 2-3 2H5.200c-1.600 0-2.200-1-1.500-2.400L9 6c.6-1.200 1.600-2 3-2Z'/%3E%3Cpath d='M34 4h9M28 26h9' stroke-opacity='0'/%3E%3C/svg%3E");
+  --wrap: 1180px;
+  --head-h: 72px;
+}
+/* Dark (default) */
+:root, :root[data-theme="dark"] {
+  --bg: var(--deep);
+  --bg-alt: #081829;
+  --surface: #0C2038;
+  --surface-2: #10294A;
+  --line: rgba(120, 170, 255, .16);
+  --text: #EAF1FB;
+  --muted: #9DB2CC;
+  --accent: #5AA0FF;           /* brand-blue tint for small text on dark surfaces (≥5:1) */
+  --accent-strong: var(--blue);
+  --hero-bg: radial-gradient(120% 90% at 80% 0%, #0E2F5A 0%, var(--deep) 60%);
+  --shadow: 0 20px 50px -20px rgba(0,0,0,.6);
+  --logo: #FFFFFF;
+  --particle: 61, 139, 255;
+  --head-bg: rgba(6,17,31,.72);
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: var(--white);
+  --bg-alt: var(--mist);
+  --surface: #FFFFFF;
+  --surface-2: #EAF1FB;
+  --line: rgba(11, 31, 58, .12);
+  --text: var(--navy);
+  --muted: #4A5F7A;
+  --accent: #0058D6;           /* brand blue, a touch deeper for small text: ≥5.2:1 on white / light tints (exact #006AFF is 4.4:1) */
+  --accent-strong: var(--blue);
+  --hero-bg: radial-gradient(120% 90% at 80% 0%, #DCE9FF 0%, var(--mist) 60%);
+  --shadow: 0 20px 50px -24px rgba(11,31,58,.28);
+  --logo: var(--blue);
+  --particle: 0, 106, 255;
+  --head-bg: rgba(255,255,255,.78);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--head-h) + 12px); -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 1rem/1.65 var(--font-b); -webkit-font-smoothing: antialiased; transition: background .3s var(--ease), color .3s var(--ease); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3 { font-family: var(--font-h); font-weight: 700; line-height: 1.1; letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+ul, ol { list-style: none; margin: 0; padding: 0; }
+svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.plat-ico svg, .plat-ico svg * { stroke: none; }
+.plat-ico svg rect, .plat-ico svg circle[fill="none"] { stroke: currentColor; }
+
+:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 3px; border-radius: 6px; }
+.skip { position: absolute; left: 12px; top: -60px; background: var(--blue); color: #fff; padding: 10px 16px; border-radius: 8px; z-index: 200; }
+.skip:focus { top: 12px; }
+.wrap { width: min(100% - 32px, var(--wrap)); margin-inline: auto; }
+

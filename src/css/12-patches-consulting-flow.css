@@ -1,0 +1,79 @@
+/* ===== Audit fixes ===== */
+.mc-channel .tag { background: rgba(6,17,31,.4); color: #fff; }
+.feature-post { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.feature-post > *, .slide > *, .evc-body, .post-body { min-width: 0; }
+@media (max-width: 900px) {
+  .feature-post { grid-template-columns: minmax(0, 1fr); }
+  .dots { gap: 0; } .dots button { width: 44px; height: 44px; }
+}
+
+@media (max-width: 900px) { .fp-art { min-height: 0; aspect-ratio: 16 / 9; } }
+
+/* Consulting: single-column compact hero so the booking sits right under it */
+.cons-hero-grid { grid-template-columns: minmax(0, 1fr); }
+.cons-hero .hero-copy { max-width: 760px; }
+.cons-hero { padding-bottom: clamp(28px, 5vw, 48px); }
+.cons-hero .disc-hero, .cons-hero .trust-row { margin-top: 18px; }
+
+/* Consulting: simple 3-step flow: session → time → details; full disclaimer is a collapsible note under it */
+.book-grid { align-items: start; }
+details.disclaimer { margin-top: 28px; padding: 0; }
+details.disclaimer > summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; min-height: 52px; font: 700 1rem var(--font-h); }
+details.disclaimer > summary::-webkit-details-marker { display: none; }
+details.disclaimer > summary::after { content: ""; width: 10px; height: 10px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform var(--dur, .28s); flex: none; margin-right: 4px; }
+details.disclaimer[open] > summary::after { transform: rotate(-135deg); }
+details.disclaimer > :not(summary) { margin-left: 20px; margin-right: 20px; }
+details.disclaimer > ul { margin-bottom: 20px; }
+.req-form .step { margin: 4px 0 2px; }
+.book-embed .step, .book-pick .step { margin-bottom: 12px; }
+@media (max-width: 900px) { details.disclaimer { order: initial; margin-top: 8px; } }
+
+/* Consulting: sessions as standing "package" cards in a row; time + details sit below */
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.book-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+.book-pick { min-width: 0; }
+.sessions { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; align-items: stretch; }
+.sessions .session { display: flex; }
+.sessions .session label { flex: 1; flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 14px; padding: 24px 20px 22px; position: relative; }
+.sessions .s-meta { order: -1; justify-items: start; gap: 0; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.sessions .s-price { font-size: 2rem; line-height: 1.1; }
+.sessions .s-main { flex: 1; align-content: start; }
+.sessions .s-main b { font-size: 1.12rem; }
+.sessions .session input:checked + label::after { content: ""; position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; border-radius: 50%; background: var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.500 4 4 8-9'/%3E%3C/svg%3E") center / 14px no-repeat; }
+.sessions .session input:checked + label { transform: translateY(-4px); }
+.book-pick .book-facts, .book-pick .meet-note { max-width: 860px; }
+.book-embed { width: 100%; max-width: 860px; margin-inline: auto; }
+@media (max-width: 900px) { .book-pick .meet-note, .book-pick .book-facts { margin-top: 16px; } .sessions { grid-template-columns: minmax(0, 1fr); } }
+.sessions { position: relative; } .vh { left: 0; top: 0; }
+/* step 3 extras (payment methods, Meet note, pay box) sit directly under the details form */
+.book-grid > .book-facts, .book-grid > .meet-note, .book-grid > .pay-box { width: 100%; max-width: 860px; margin: -24px auto 0; }
+.book-grid > .book-facts { margin-top: -20px; }
+.book-grid > .meet-note, .book-grid > .pay-box { margin-top: -26px; }
+@media (max-width: 900px) { .book-grid > .book-facts, .book-grid > .meet-note, .book-grid > .pay-box { margin-top: 0; } }
+
+/* the time-picking card fits its content instead of holding a fixed height */
+.embed-card, #calEmbed, .embed-empty { min-height: 0 !important; }
+.embed-card { height: auto; }
+.native { padding-bottom: 28px; }
+.native, .embed-card .native { min-height: 0 !important; }
+
+
+/* session cards: price + minutes on top, bullets, a "Book $X Session" button at the bottom */
+.sessions .s-book { order: 5; margin-top: auto; display: block; text-align: center; padding: 12px 16px; border-radius: 999px; background: var(--blue); color: #fff; font-weight: 700; transition: transform var(--dur, .28s), box-shadow var(--dur, .28s); }
+.sessions .session label:hover .s-book { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,106,255,.8); }
+.sessions .session input:checked + label .s-book { background: #0B1F3A; box-shadow: inset 0 0 0 2px var(--blue); }
+.sessions .s-main { flex: 1 0 auto; }
+.topics-box { margin-top: 28px; padding: 22px clamp(18px, 3vw, 28px); border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); text-align: center; }
+.topics-box h3 { font-size: 1.15rem; margin: 0 0 14px; }
+.topic-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
+.topic-chips li { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 500; font-size: .95rem; }
+.topics-box p { margin: 0; color: var(--muted); }
+
+.pay-mode-note { margin: 0 0 14px; padding: 12px 16px; border-radius: var(--r-m); background: color-mix(in srgb, #ffb020 18%, var(--surface)); border: 1px solid color-mix(in srgb, #ffb020 55%, var(--line)); font-weight: 600; }
+
+.book-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-radius: var(--r-m); background: color-mix(in srgb, var(--blue) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--blue) 40%, var(--line)); }
+.book-summary span { color: var(--muted); font-size: .92rem; }
+.bs-change { flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+
+.pay-status[data-kind="wait"] .ps-ico .spinner { animation-duration: 2.4s; }
+.pay-status[data-kind="wait"] .spinner { display: block; }

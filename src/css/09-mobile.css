@@ -1,0 +1,48 @@
+/* ===== Mobile polish ===== */
+html { -webkit-tap-highlight-color: transparent; }
+a, button, summary, label, input, select { touch-action: manipulation; }
+body { overflow-x: clip; }
+.nav-cta, .m-cta { display: none; }
+.tag { font-size: .78rem; }
+@media (max-width: 900px) {
+  /* headline first, photo after (the headline used to sit below the fold) */
+  .hero-visual { order: 0; width: min(86%, 380px); margin-top: 10px; }
+  .hero { padding-bottom: 56px; }
+  .hero-cta .btn { flex: 1 1 100%; }
+  .section, .audience, .pillars { padding: 56px 0; } .newsletter { padding: 56px 0; } .partners { padding: 36px 0 48px; }
+  .sec-head { margin-bottom: 28px; }
+  .pillar { padding: 24px; } .pillar-ico { margin: 18px 0 16px; }
+  .float { font-size: .78rem; padding: 7px 12px; } .float svg { width: 14px; height: 14px; }
+  .crumbs a { display: inline-flex; align-items: center; min-height: 36px; }
+  .foot-nav { gap: 0 20px; } .foot-nav a { display: inline-flex; align-items: center; min-height: 44px; }
+  .mail a { display: inline-block; padding: 10px 0; }
+  .site-footer { padding-bottom: 96px; }
+  /* mobile menu: roomier tap targets + a call-to-action at the bottom */
+  .nav a { min-height: 48px; display: flex; align-items: center; }
+  .nav .nav-cta { display: flex; justify-content: center; margin-top: 10px; min-height: 52px; color: #fff; font-size: 1rem; }
+  /* booking: pick session → pick time → payment info (the info used to push the calendar down) */
+  .book-pick { display: contents; } .sessions { order: 1; } .meet-note { order: 2; margin-top: 0; } .book-embed { order: 3; } .pay-box { order: 4; margin-top: 0; }
+  .book-grid { gap: 16px; }
+  /* floating CTA */
+  .m-cta { display: inline-flex; align-items: center; gap: 10px; position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 45; transform: translate(-50%, 140%); padding: 0 24px; min-height: 52px; border-radius: 999px; background: var(--blue); color: #fff; font-weight: 700; box-shadow: 0 14px 34px -10px rgba(0,106,255,.8); transition: transform .35s var(--ease), opacity .3s; opacity: 0; white-space: nowrap; }
+  .m-cta svg { width: 18px; height: 18px; } .m-cta.show { transform: translate(-50%, 0); opacity: 1; }
+  .read-progress { top: var(--head-h); }
+}
+@media (max-width: 520px) {
+  .hero { min-height: 0; padding-top: calc(var(--head-h) + 22px); }
+  .hero-total { gap: 22px; max-width: none; } .hero-total dd { font-size: 1.9rem; }
+  .eyebrow { font-size: .8rem; margin-bottom: 20px; }
+  .lead { font-size: 1.05rem; margin-top: 18px; }
+  .plat-num { font-size: 1.8rem; margin-top: 14px; }
+  .btn { min-height: 50px; }
+  .process li { padding: 18px; }
+  .section, .audience, .pillars, .newsletter { padding: 48px 0; }
+  .blog-hero { padding-top: calc(var(--head-h) + 28px); } .post-head { padding-top: calc(var(--head-h) + 24px); }
+  .video-card .play::before { width: 68px; height: 68px; } .vc-label { left: 10px; bottom: 10px; font-size: .8rem; padding: 6px 12px; }
+  .article { font-size: 1.05rem; }
+  .react, .sh { min-height: 46px; }
+  .chips { gap: 8px; } .chip { min-height: 44px; }
+  .native { padding: 18px; } .native .chip[data-day] { min-width: 0; flex: 1 1 calc(33% - 8px); } .native .chip { flex: 1 1 calc(25% - 8px); }
+}
+@media (prefers-reduced-motion: reduce) { .m-cta { transition: none; } }
+

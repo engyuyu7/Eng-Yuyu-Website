@@ -1,0 +1,19 @@
+# secrets and live data: never commit these
+server/.env
+server/.env.*
+!server/.env.example
+server/data/
+server/data-demo/
+.DS_Store
+
+# large original design/media files (keep them in your own backup, not in git)
+source/
+
+# misc
+node_modules/
+*.log
+.vscode/
+.idea/
+.env
+.env.*
+!.env.example

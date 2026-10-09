@@ -1,0 +1,23 @@
+{
+  "name": "eng-yuyu-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Eng Yuyu personal brand website, booking system, blog and dashboard (no dependencies).",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "build": "node src/build.js",
+    "demo": "DATA_DIR=server/data-demo MOCK=1 SITE_URL=http://localhost:8787 node server/server.js",
+    "demo:seed": "DATA_DIR=server/data-demo node server/tools/seed-demo.js",
+    "defaults": "node server/tools/extract-defaults.js",
+    "reset-password": "node server/tools/reset-password.js"
+  },
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR-NAME/YOUR-REPO.git"
+  }
+}
