@@ -26,7 +26,8 @@ src/
   css/                   styles, in cascade order
   build.js               joins the parts into public/app.js and public/styles.css
 server/
-  server.js              entry point: booking, payments, Google, emails, security headers, static files
+  server.js              start-up: loads the saved data (Supabase or local), then runs app.js
+  app.js                 booking, payments, Google, emails, security headers, static files
   modules/               admin.js (dashboard API), blog.js (blog pages and SEO),
                          writers.js (guest writers), automations.js (reminders, summaries)
   lib/                   store.js (JSON data), payments.js (Sifalo Pay), mail.js (branded emails)
@@ -50,6 +51,10 @@ source/                  original branding and media files (kept out of Git)
 ## Settings and secrets
 
 Copy `server/.env.example` to `server/.env` and fill it in. **Never commit `server/.env`**, the `server/data/` folder, or any API keys. `.gitignore` already blocks them.
+
+## Data: local files or Supabase
+
+By default everything is saved in `server/data/` (JSON files). To use Supabase instead, run `docs/supabase-setup.sql` in your Supabase project, then set `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` in `server/.env` (or the host's environment variables). On the first start the server uploads any existing local data to Supabase, then reads and saves everything there. Pictures and ad videos go to the `uploads` bucket. Run only one server instance at a time.
 
 ## Put it on GitHub
 

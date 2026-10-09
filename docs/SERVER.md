@@ -76,3 +76,11 @@ Emails go out from the Gmail account connected with Google (see BOOKING-SETUP.md
 - **Reminders** (hourly check, each sent once, `author.sent`): planned article due today/tomorrow, 1–2 days overdue, and "goal at risk" in the last 3 days of the week/month. Writers can switch reminders off. `POST /api/admin/authors/reminders` runs a check now (`now` override only in demo mode).
 - **Public top 3**: the blog index shows the three top contributors of the month (name, photo, article count, streak, link to the author page) above the ad slot; hidden until someone has published.
 - A **congratulations email** is sent once per week/month when a writer reaches their goal (streak shown when ≥ 2).
+
+## Supabase storage (server/lib/store.js)
+- With `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` set, the `kv` table holds one row per collection (settings, orders, blog, authors and so on). The server loads them all at start-up and writes changes back within a second. Local files are still written as a backup copy.
+- First start: any local collection that Supabase does not have yet is uploaded (this is the migration). Collections already in Supabase always win.
+- If Supabase cannot be reached or the key is wrong, the server refuses to start instead of running on old data.
+- Uploads (`/uploads/<name>`) are stored in the `uploads` bucket and cached on disk when read.
+- Run one server instance only. Two instances would overwrite each other's changes.
+- Supabase's free plan has no automatic backups and pauses idle projects. Use a paid plan for the live site, or export the `kv` table regularly.

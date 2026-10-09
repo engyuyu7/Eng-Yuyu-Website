@@ -212,7 +212,7 @@ module.exports = function writers(ctx) {
       let ext = null; if (buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) ext = 'png'; else if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) ext = 'jpg'; else if (buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP') ext = 'webp';
       if (!ext) return json(res, 400, { error: 'Please upload a PNG, JPG or WebP image.' }), true;
       if (limited(ip + 'wup', 40)) return json(res, 429, { error: 'Too many uploads. Try again later.' }), true;
-      const name = crypto.randomBytes(8).toString('hex') + '.' + ext, dir = path.join(store.DIR, 'uploads'); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, name), buf);
+      const name = crypto.randomBytes(8).toString('hex') + '.' + ext; try { await store.putFile(name, buf); } catch (e) { console.error('upload failed:', e.message); return json(res, 502, { error: 'Could not save the image. Please try again.' }), true; }
       return json(res, 200, { url: '/uploads/' + name }), true;
     }
     if (p === '/api/writer/preview' && m === 'POST') { const b = await readJson(req); return json(res, 200, { html: B().md(cleanS(b.body, 60000), b.lang === 'so' ? 'so' : 'en') }), true; }

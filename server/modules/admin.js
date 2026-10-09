@@ -259,21 +259,21 @@ module.exports = function (ctx) {
     const vm = p.match(/^\/uploads\/([a-f0-9]{16}\.(mp4|webm))$/);
     if (vm && (m === 'GET' || m === 'HEAD')) {
       try {
-        const file = path.join(store.DIR, 'uploads', vm[1]), size = fs.statSync(file).size, type = vm[2] === 'mp4' ? 'video/mp4' : 'video/webm', rg = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+        const vbuf = await store.getFile(vm[1]); if (!vbuf) { res.writeHead(404); res.end(); return true; } const size = vbuf.length, type = vm[2] === 'mp4' ? 'video/mp4' : 'video/webm', rg = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
         const base = { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff' };
         if (rg && (rg[1] || rg[2])) {
           let st = rg[1] === '' ? Math.max(0, size - +rg[2]) : +rg[1], en = rg[1] === '' || rg[2] === '' ? size - 1 : Math.min(+rg[2], size - 1);
           if (st > en || st >= size) { res.writeHead(416, { ...base, 'Content-Range': 'bytes */' + size }); res.end(); return true; }
-          res.writeHead(206, { ...base, 'Content-Range': `bytes ${st}-${en}/${size}`, 'Content-Length': en - st + 1 }); if (m === 'HEAD') { res.end(); return true; } fs.createReadStream(file, { start: st, end: en }).pipe(res); return true;
+          res.writeHead(206, { ...base, 'Content-Range': `bytes ${st}-${en}/${size}`, 'Content-Length': en - st + 1 }); if (m === 'HEAD') { res.end(); return true; } res.end(vbuf.subarray(st, en + 1)); return true;
         }
-        res.writeHead(200, { ...base, 'Content-Length': size }); if (m === 'HEAD') { res.end(); return true; } fs.createReadStream(file).pipe(res);
+        res.writeHead(200, { ...base, 'Content-Length': size }); if (m === 'HEAD') { res.end(); return true; } res.end(vbuf);
       } catch { res.writeHead(404); res.end(); }
       return true;
     }
     let um = p.match(/^\/uploads\/([a-f0-9]{16}\.(png|jpg|webp|svg))$/);
     if (um && m === 'GET') {
       try {
-        const b = fs.readFileSync(path.join(store.DIR, 'uploads', um[1])), type = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', svg: 'image/svg+xml' }[um[2]];
+        const b = await store.getFile(um[1]); if (!b) { res.writeHead(404); res.end(); return true; } const type = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', svg: 'image/svg+xml' }[um[2]];
         res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff', ...(um[2] === 'svg' ? { 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox" } : {}) }); res.end(b);
       } catch { res.writeHead(404); res.end(); }
       return true;
@@ -430,7 +430,7 @@ module.exports = function (ctx) {
       if (!buf) return json(res, 413, { error: 'Video is too large (max 12 MB). A 10–15 second clip should be 2–6 MB.' }), true;
       let ext = null; if (buf.length > 12 && buf.slice(4, 8).toString() === 'ftyp') ext = 'mp4'; else if (buf.length > 4 && buf[0] === 0x1a && buf[1] === 0x45 && buf[2] === 0xdf && buf[3] === 0xa3) ext = 'webm';
       if (!ext) return json(res, 400, { error: 'Please upload an MP4 or WebM video.' }), true;
-      const name = crypto.randomBytes(8).toString('hex') + '.' + ext, dir = path.join(store.DIR, 'uploads'); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, name), buf);
+      const name = crypto.randomBytes(8).toString('hex') + '.' + ext; try { await store.putFile(name, buf); } catch (e) { console.error('upload failed:', e.message); return json(res, 502, { error: 'Could not save the video. Please try again.' }), true; }
       log('admin', 'Uploaded an ad video'); return json(res, 200, { url: '/uploads/' + name }), true;
     }
     if (p === '/api/admin/upload' && m === 'POST') {   // logo upload: png / jpg / webp / svg, max 1 MB
@@ -445,8 +445,8 @@ module.exports = function (ctx) {
       else if (buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP') ext = 'webp';
       else { const t = buf.toString('utf8', 0, Math.min(buf.length, 400000)); if (/^\s*(<\?xml[^>]*>\s*)?(<!--[\s\S]*?-->\s*)?(<!DOCTYPE[^>]*>\s*)?<svg[\s>]/i.test(t) && !/<script|<foreignObject|\son\w+\s*=|javascript:|<iframe|<object|<embed|xlink:href\s*=\s*["']\s*https?:/i.test(t)) ext = 'svg'; }
       if (!ext) return json(res, 400, { error: 'Please upload a PNG, JPG, WebP or SVG image.' }), true;
-      const name = crypto.randomBytes(8).toString('hex') + '.' + ext, dir = path.join(store.DIR, 'uploads');
-      fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, name), buf);
+      const name = crypto.randomBytes(8).toString('hex') + '.' + ext;
+      try { await store.putFile(name, buf); } catch (e) { console.error('upload failed:', e.message); return json(res, 502, { error: 'Could not save the image. Please try again.' }), true; }
       return json(res, 200, { url: '/uploads/' + name }), true;
     }
     if (p === '/api/admin/me') return json(res, 200, { ok: true, mock: MOCK, owner: OWNER() }), true;
