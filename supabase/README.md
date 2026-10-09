@@ -17,3 +17,11 @@ To put one back (replace 123 with the id, and stop the website first so it does 
 ```sql
 update public.kv set data = (select data from public.kv_history where id = 123), updated_at = now() where name = 'orders';
 ```
+
+## Reading your data in Supabase (the `reports` views)
+
+Your website keeps its data as documents in `kv`. The `reports` schema turns them into plain tables you can browse and query (read only):
+`bookings`, `bookings_by_status`, `blog_posts`, `blog_comments`, `subscribers`, `messages`, `events`, `writers`, `activity_log`.
+
+In the SQL Editor, for example: `select * from reports.bookings order by created_at desc;`
+They are private. The public key cannot see them, and the website does not use them.
