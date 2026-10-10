@@ -170,7 +170,8 @@ module.exports = function (ctx) {
     if (!MOCK && system.payMode === 'off') attention.push({ tone: 'warn', text: 'Online payments are off, bookings are free. Turn them on in Settings → Payments', go: 'settings', filter: 'payments' });
     if (!MOCK && system.payMode === 'test') attention.push({ tone: 'warn', text: 'Payments are in TEST mode, no real money is taken. Switch to Live in Settings → Payments when you are ready', go: 'settings', filter: 'payments' });
     if (!MOCK && system.payMode === 'sandbox') attention.push({ tone: 'info', text: 'Payments use the Sifalo sandbox (test wallets and cards only)', go: 'settings', filter: 'payments' });
-    if (!MOCK && !system.google) attention.push({ tone: 'warn', text: 'Google is not connected, no calendar, Meet links or emails', go: 'settings', filter: 'connections' });
+    if (!MOCK && !system.google) attention.push({ tone: 'warn', text: ENV.RESEND_API_KEY ? 'Google is not connected: no calendar or Meet links (emails work through Resend)' : 'Google is not connected: no calendar, Meet links or emails', go: 'settings', filter: 'connections' });
+    if (!MOCK && !ENV.RESEND_API_KEY && !system.google) attention.push({ tone: 'warn', text: 'Emails are off. Add a Resend key (RESEND_API_KEY) or connect Google', go: 'settings', filter: 'connections' });
     const insights = [];
     const d = pct(rev, revPrev);
     if (rev || revPrev) insights.push(d === null ? { tone: 'good', text: `Revenue is $${rev} in the last ${range} days, with nothing in the period before.` } : { tone: d >= 0 ? 'good' : 'warn', text: `Revenue is ${d >= 0 ? 'up' : 'down'} ${Math.abs(d)}% versus the previous ${range} days ($${rev} vs $${revPrev}).` });
@@ -372,7 +373,8 @@ module.exports = function (ctx) {
       const em = T();
       if (p === '/api/admin/email-preview') { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Content-Security-Policy': "default-src 'none'; img-src https: http: data:; style-src 'unsafe-inline'; frame-ancestors 'self'", 'X-Frame-Options': 'SAMEORIGIN' }); res.end(em.html); return true; }
       if (m !== 'POST') return json(res, 405, { error: 'POST' }), true;
-      await sendMail({ to: OWNER(), ...em, subject: '[Preview] ' + em.subject }); log('admin', `Test email sent: ${type} (${lang})`); return json(res, 200, { ok: true, to: OWNER() }), true;
+      try { await sendMail({ to: OWNER(), ...em, subject: '[Preview] ' + em.subject }); } catch (e) { return json(res, 502, { error: 'The email could not be sent: ' + String(e.message).replace(/^Resend refused the email \(\d+\): /, '').slice(0, 220) }), true; }
+      log('admin', `Test email sent: ${type} (${lang})`); return json(res, 200, { ok: true, to: OWNER() }), true;
     }
     if (p === '/api/admin/payment' && m === 'GET') return json(res, 200, { ...P().status(), webhookUrl: `${(ENV.PUBLIC_API_URL || ctx.SITE_URL).replace(/\/$/, '')}/api/pay/webhook`, needsPassword: !!(PASSWORD || auth.hash) }), true;
     if (p === '/api/admin/payment' && m === 'PUT') {

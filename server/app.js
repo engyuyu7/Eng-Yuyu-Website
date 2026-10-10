@@ -133,6 +133,13 @@ const b64url = s => b64(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 async function sendMail({ to, subject, text, html, ics }) {
   if (MOCK) { mockOutbox.push({ to, subject, text, html, hasIcs: !!ics, at: Date.now() }); if (mockOutbox.length > 60) mockOutbox.shift(); console.log('[mock email]', to, '-', subject); return; }
+  if (ENV.RESEND_API_KEY) {   // Resend (resend.com): the sending domain must be verified there. The key lives only in the server settings.
+    const body = { from: ENV.EMAIL_FROM || `Eng Yuyu <${OWNER()}>`, to: [to], subject, html, text, reply_to: OWNER() };
+    if (ics) body.attachments = [{ filename: 'invite.ics', content: Buffer.from(ics).toString('base64'), content_type: 'text/calendar; charset=UTF-8; method=REQUEST' }];
+    const r = await fetch((ENV.RESEND_API_URL || 'https://api.resend.com') + '/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + ENV.RESEND_API_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(20000) });
+    if (!r.ok) { const why = (await r.text()).slice(0, 300); try { admin.log('email', `Email not sent (Resend ${r.status}): “${subject}” to ${to}`); } catch { /* ignore */ } throw new Error('Resend refused the email (' + r.status + '): ' + why); }
+    return;
+  }
   if (!GOOGLE_ON()) { console.log('[email not sent: Google not connected]', to, '-', subject); try { admin.log('email', `Email not sent (Google not connected): “${subject}” to ${to}`); } catch { /* ignore */ } return; }
   const bnd = 'yy' + crypto.randomBytes(8).toString('hex');
   const parts = [
@@ -314,7 +321,7 @@ const srv = http.createServer(async (req, res) => {
       const out = {}; for (const [k, f] of [['reminders', () => ctx.automations.runReminders()], ['followUps', () => ctx.automations.runFollowUps()], ['digest', () => ctx.automations.runDigest()], ['writers', () => ctx.writers.runReminders()]]) { try { out[k] = await f(); } catch (e) { out[k] = 'failed: ' + e.message; } }
       return send(res, 200, { ok: true, ran: Object.keys(out) }, origin);
     }
-    if (url.pathname === '/api/health') return send(res, 200, { ok: true, mock: MOCK, paymentRequired: payments.required(), payMode: payments.mode(), database: store.remote ? 'supabase' : 'local files (not saved long-term)', admin: ctx.adminInfo ? ctx.adminInfo() : undefined }, origin);
+    if (url.pathname === '/api/health') return send(res, 200, { ok: true, mock: MOCK, paymentRequired: payments.required(), payMode: payments.mode(), database: store.remote ? 'supabase' : 'local files (not saved long-term)', email: ENV.RESEND_API_KEY ? 'resend' : GOOGLE_ON() ? 'google' : 'not set up', admin: ctx.adminInfo ? ctx.adminInfo() : undefined }, origin);
     if (url.pathname === '/api/config') return send(res, 200, { paymentRequired: payments.required(), payMode: payments.mode(), currency: 'USD', holdMinutes: HOLD_MIN, tz: RULES.tzId, availability: { days: RULES.days, start: RULES.start, end: RULES.end, step: RULES.step, minNoticeHours: RULES.minNoticeHours, horizonDays: RULES.horizonDays }, sessions: Object.fromEntries(Object.entries(SESSIONS).filter(([, x]) => !x.legacy).map(([id, x]) => [id, { min: x.min, price: x.price, enabled: x.enabled !== false }])), sessionList: sessionList().filter(x => x.enabled !== false), whatsapp: settings.whatsapp || '', wa: (({ number, ...rest }) => rest)(waCfg()), introVideo: settings.introVideo || '' }, origin);
     if (MOCK && url.pathname === '/api/mock-outbox') return send(res, 200, mockOutbox, origin);
     if (MOCK && url.pathname === '/mock-pay') {   // stands in for Sifalo's hosted checkout while testing
