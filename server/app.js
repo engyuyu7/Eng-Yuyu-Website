@@ -309,6 +309,11 @@ const srv = http.createServer(async (req, res) => {
   const origin = req.headers.origin, url = new URL(req.url, 'http://x'), ip = req.clientIp;
   if (req.method === 'OPTIONS') return send(res, 204, {}, origin);
   try {
+    if (url.pathname === '/api/cron' && ENV.CRON_SECRET) {   // Vercel Cron: the background jobs that normally run on timers
+      if (req.headers.authorization !== 'Bearer ' + ENV.CRON_SECRET) return send(res, 401, { error: 'Not allowed' }, origin);
+      const out = {}; for (const [k, f] of [['reminders', () => ctx.automations.runReminders()], ['followUps', () => ctx.automations.runFollowUps()], ['digest', () => ctx.automations.runDigest()], ['writers', () => ctx.writers.runReminders()]]) { try { out[k] = await f(); } catch (e) { out[k] = 'failed: ' + e.message; } }
+      return send(res, 200, { ok: true, ran: Object.keys(out) }, origin);
+    }
     if (url.pathname === '/api/health') return send(res, 200, { ok: true, mock: MOCK, paymentRequired: payments.required(), payMode: payments.mode() }, origin);
     if (url.pathname === '/api/config') return send(res, 200, { paymentRequired: payments.required(), payMode: payments.mode(), currency: 'USD', holdMinutes: HOLD_MIN, tz: RULES.tzId, availability: { days: RULES.days, start: RULES.start, end: RULES.end, step: RULES.step, minNoticeHours: RULES.minNoticeHours, horizonDays: RULES.horizonDays }, sessions: Object.fromEntries(Object.entries(SESSIONS).filter(([, x]) => !x.legacy).map(([id, x]) => [id, { min: x.min, price: x.price, enabled: x.enabled !== false }])), sessionList: sessionList().filter(x => x.enabled !== false), whatsapp: settings.whatsapp || '', wa: (({ number, ...rest }) => rest)(waCfg()), introVideo: settings.introVideo || '' }, origin);
     if (MOCK && url.pathname === '/api/mock-outbox') return send(res, 200, mockOutbox, origin);
@@ -413,4 +418,5 @@ const srv = http.createServer(async (req, res) => {
   } catch (e) { console.error(e); send(res, 500, { error: 'Server error' }, origin); }
 });
 srv.requestTimeout = 30e3; srv.headersTimeout = 15e3; srv.keepAliveTimeout = 5e3; srv.maxHeadersCount = 60;
-srv.listen(PORT, () => console.log(`Booking API on :${PORT} · payment ${payments.required() ? 'REQUIRED' + (MOCK ? ' (MOCK)' : '') : 'not linked: bookings are free'}${MOCK ? ' · MOCK mode' : ''}`));
+if (process.env.VERCEL) module.exports = srv;   // on Vercel api/index.js feeds requests to this server; nothing listens on a port
+else srv.listen(PORT, () => console.log(`Booking API on :${PORT} · payment ${payments.required() ? 'REQUIRED' + (MOCK ? ' (MOCK)' : '') : 'not linked: bookings are free'}${MOCK ? ' · MOCK mode' : ''}`));
