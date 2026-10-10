@@ -21,6 +21,7 @@ module.exports = function (ctx) {
   const activity = store.load('activity', []);
   const stats = store.load('stats', { current: { youtube: 420000, facebook: 380000, tiktok: 150000, instagram: 110000, views: 120000000 }, source: 'sample', updatedAt: Date.now(), history: [] });
   let defaults = {}; try { defaults = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'content-defaults.json'), 'utf8')); } catch { /* run extract-defaults.js */ }
+  if (!MOCK) { defaults.events = []; defaults.posts = []; }   // the real site starts without the demo events and demo post cards
   const content = store.load('content', defaults);
   for (const k of ['proof', 'testimonials', 'media', 'ads']) if (!Array.isArray(content[k])) { content[k] = defaults[k] || []; store.save('content'); }   // older stores get the new sections too
   const uid = () => crypto.randomBytes(6).toString('hex');
