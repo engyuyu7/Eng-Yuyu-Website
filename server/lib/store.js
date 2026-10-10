@@ -8,7 +8,8 @@
 const fs = require('fs');
 const path = require('path');
 const DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
-const SB_URL = String(process.env.SUPABASE_URL || '').replace(/\/+$/, ''), SB_KEY = process.env.SUPABASE_SERVICE_KEY || '', BUCKET = process.env.SUPABASE_BUCKET || 'uploads';
+// also accepts the names the Supabase-to-Vercel integration creates
+const SB_URL = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, ''), SB_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || '', BUCKET = process.env.SUPABASE_BUCKET || 'uploads';
 const remote = !!(SB_URL && SB_KEY);
 const cache = {}, timers = {}, dirty = new Set(), seen = {};   // seen[name] = updated_at of the Supabase row we last read or wrote
 const file = n => path.join(DIR, n + '.json');
