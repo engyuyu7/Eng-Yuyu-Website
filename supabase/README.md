@@ -29,3 +29,7 @@ They are private. The public key cannot see them, and the website does not use t
 ## The real tables (`public.bookings`, `blog_posts`, `blog_comments`, `subscribers`, `messages`, `events`, `writers`, `activity_log`)
 
 These are normal tables you can browse in Supabase's Table Editor, filter, sort and export. They are **read-only copies**: every time the website saves, a trigger refreshes them from `kv`. Do not edit rows here (the next save overwrites them); change data in the dashboard instead. If a record has data the copy cannot read, the website still saves normally and only the copy skips that save (see Logs > Postgres for a warning). Blog post bodies are not copied, only the details (title, author, views, dates).
+
+## More read-only tables
+
+`site_settings`, `consulting_sessions`, `page_views_daily`, `audience_stats`, `partners`, `testimonials`, `media_items`, `partner_ads`, `proof_points` and `community_links` are copied from the site's settings, visitor stats, audience figures and content in the same way. Sensitive collections (the admin login, payment keys and the cookie secret) are never copied into tables; they stay only in `kv`.
