@@ -53,9 +53,28 @@ module.exports = function (ctx) {
   const normUser = s => String(s || '').trim().toLowerCase();
   const userName = () => normUser(auth.username) || normUser(ENV.ADMIN_USERNAME) || 'admin';
   const checkUser = u => crypto.timingSafeEqual(sha(normUser(u)), sha(userName()));
-  const enabled = () => !!PASSWORD || !!auth.hash;
+  // ---- optional: sign in with a Supabase Auth user (set ADMIN_AUTH=supabase and ADMIN_EMAILS=you@example.com) ----
+  // The password is checked by Supabase itself, so there is no second password to keep. Only the e-mails in ADMIN_EMAILS may enter,
+  // even if someone else registers in your Supabase project.
+  const SB_URL = String(ENV.SUPABASE_URL || ENV.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
+  const SB_PUB = ENV.SUPABASE_ANON_KEY || ENV.SUPABASE_PUBLISHABLE_KEY || ENV.NEXT_PUBLIC_SUPABASE_ANON_KEY || ENV.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || '';
+  const ADMIN_EMAILS = String(ENV.ADMIN_EMAILS || '').split(',').map(normUser).filter(Boolean);
+  const sbMode = () => String(ENV.ADMIN_AUTH || '').toLowerCase() === 'supabase';
+  const sbReady = () => !!(SB_URL && SB_PUB && ADMIN_EMAILS.length);
+  async function sbLogin(email, password) {   // the confirmed, allowed e-mail when Supabase accepts the password, otherwise ''
+    email = normUser(email); if (!email || !password) return '';
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, { method: 'POST', headers: { apikey: SB_PUB, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: String(password) }), signal: AbortSignal.timeout(12000) });
+      if (!r.ok) return '';
+      const u = (await r.json()).user || {};
+      return normUser(u.email) === email && u.email_confirmed_at && ADMIN_EMAILS.includes(email) ? email : '';
+    } catch { return ''; }
+  }
+  // re-checks the signed-in person's password for sensitive actions (works for both login styles)
+  const verifyPw = async (req, pw) => { if (!sbMode()) return checkPw(pw); const s = verify(cookie(req).yy_admin); return !!(s && s.u && await sbLogin(s.u, pw)); };
+  const enabled = () => sbMode() ? sbReady() : (!!PASSWORD || !!auth.hash);
   // safe status for /api/health (no secrets): why the dashboard is on or off
-  ctx.adminInfo = () => ({ enabled: enabled(), ...(enabled() ? {} : { reason: ENV.ADMIN_PASSWORD ? (ENV.ADMIN_PASSWORD.length < 12 ? 'ADMIN_PASSWORD is shorter than 12 characters' : 'unknown') : 'ADMIN_PASSWORD is not set' }) });
+  ctx.adminInfo = () => ({ enabled: enabled(), mode: sbMode() ? 'supabase user' : 'own username and password', ...(enabled() ? {} : sbMode() ? { reason: !ADMIN_EMAILS.length ? 'ADMIN_EMAILS is not set' : 'SUPABASE_URL or SUPABASE_ANON_KEY (the publishable key) is missing' } : { reason: ENV.ADMIN_PASSWORD ? (ENV.ADMIN_PASSWORD.length < 12 ? 'ADMIN_PASSWORD is shorter than 12 characters' : 'unknown') : 'ADMIN_PASSWORD is not set' }) });
 
   // ---- two-step verification (TOTP, RFC 6238: works with Google Authenticator, Microsoft Authenticator, Authy, 1Password …) ----
   const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
@@ -291,13 +310,16 @@ module.exports = function (ctx) {
     if (p === '/admin' || p === '/admin/') { if (!enabled()) return text(res, 503, 'Admin disabled: set ADMIN_PASSWORD in server/.env', 'text/plain'), true; return serveStatic(res, 'index.html') || (res.writeHead(404), res.end(), true); }
     if (p.startsWith('/admin/')) return serveStatic(res, p.slice(7)) || (res.writeHead(404), res.end(), true);
     if (!p.startsWith('/api/admin/')) return false;
+    if (p === '/api/admin/auth-mode' && m === 'GET') return json(res, 200, { mode: sbMode() ? 'supabase' : 'local' }), true;
     if (!enabled()) return json(res, 503, { error: 'Admin disabled' }), true;
 
     if (p === '/api/admin/login' && m === 'POST') {
       if (limited(ip + 'l', 10)) return json(res, 429, { error: 'Too many attempts. Try again later.' }), true;
       const b = await readJson(req);
-      const okUser = checkUser(b.username), okPass = checkPw(b.password);   // both are always checked, so the answer never says which one was wrong
-      if (!(okUser && okPass)) { await new Promise(r => setTimeout(r, 700)); log('security', 'Failed dashboard sign-in'); return json(res, 401, { error: 'Wrong username or password' }), true; }
+      let who = '', allowed;
+      if (sbMode()) { who = await sbLogin(b.username, b.password); allowed = !!who; }
+      else { const okUser = checkUser(b.username), okPass = checkPw(b.password); allowed = okUser && okPass; }   // both are always checked, so the answer never says which one was wrong
+      if (!allowed) { await new Promise(r => setTimeout(r, 700)); log('security', 'Failed dashboard sign-in'); return json(res, 401, { error: 'Wrong username or password' }), true; }
       if (anyOn()) {   // password was right, now the second step
         const need = (error, extra = {}) => json(res, 401, { need2fa: true, methods: methods(), error, ...extra });
         if (b.send === 'email') {   // ask for a code by email (only to the owner's own address)
@@ -310,8 +332,9 @@ module.exports = function (ctx) {
         if (limited(ip + 'l2', 8) || limited('l2-all', 30)) return json(res, 429, { error: 'Too many attempts. Try again later.' }), true;
         if (!secondFactor(b.code)) { await new Promise(r => setTimeout(r, 700)); log('security', 'Wrong two-step code at sign-in'); return need('That code is not right or has expired.'), true; }
       }
-      return json(res, 200, { ok: true }, { 'Set-Cookie': `yy_admin=${sign({ exp: Date.now() + 12 * 3600e3, e: auth.epoch })}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200${secureFlag(req)}` }), true;
+      return json(res, 200, { ok: true }, { 'Set-Cookie': `yy_admin=${sign({ exp: Date.now() + 12 * 3600e3, e: auth.epoch, ...(who ? { u: who } : {}) })}; HttpOnly; SameSite=Strict; Path=/; Max-Age=43200${secureFlag(req)}` }), true;
     }
+    if (sbMode() && (p === '/api/admin/forgot' || p === '/api/admin/reset') && m === 'POST') return json(res, 400, { error: 'Your password is managed in Supabase. Reset it there (Authentication, Users).' }), true;
     if (p === '/api/admin/forgot' && m === 'POST') {
       // emails a one-time link to the OWNER address only (never to an address typed in the form)
       if (req.headers['x-requested-with'] !== 'yy-admin') return json(res, 403, { error: 'Bad request' }), true;
@@ -379,7 +402,7 @@ module.exports = function (ctx) {
     if (p === '/api/admin/payment' && m === 'GET') return json(res, 200, { ...P().status(), webhookUrl: `${(ENV.PUBLIC_API_URL || ctx.SITE_URL).replace(/\/$/, '')}/api/pay/webhook`, needsPassword: !!(PASSWORD || auth.hash) }), true;
     if (p === '/api/admin/payment' && m === 'PUT') {
       const b = await readJson(req);
-      if ((PASSWORD || auth.hash) && !checkPw(b.password)) {   // only wrong passwords count towards the limit; saving settings is never blocked
+      if (enabled() && !(await verifyPw(req, b.password))) {   // only wrong passwords count towards the limit; saving settings is never blocked
         if (limited(ip + 'paypw', 10)) return json(res, 429, { error: 'Too many wrong passwords. Please wait an hour or reset your dashboard password.' }), true;
         await new Promise(r => setTimeout(r, 700)); log('security', 'Payment settings change refused (wrong password)'); return json(res, 403, { error: 'Enter your current dashboard password to change payment settings.' }), true; }
       const before = P().mode();
@@ -419,7 +442,7 @@ module.exports = function (ctx) {
       }
       if (p === '/api/admin/2fa/disable') {   // method: app | email | all
         if (!anyOn()) return json(res, 200, { ok: true }), true;
-        if (!checkPw(b.password) || !secondFactor(b.code)) { await new Promise(r => setTimeout(r, 700)); return json(res, 400, { error: 'Your password or code is not correct.' }), true; }
+        if (!(await verifyPw(req, b.password)) || !secondFactor(b.code)) { await new Promise(r => setTimeout(r, 700)); return json(res, 400, { error: 'Your password or code is not correct.' }), true; }
         const mth = b.method || 'all';
         if (mth === 'app' || mth === 'all') auth.totp = null; if (mth === 'email' || mth === 'all') auth.mfaEmail = false;
         if (!anyOn()) auth.rec = []; store.save('auth'); log('security', 'Two-step turned off: ' + mth); return json(res, 200, { ok: true }), true;
@@ -429,6 +452,7 @@ module.exports = function (ctx) {
     if (p === '/api/admin/password' && m === 'POST') {   // change password while signed in
       const b = await readJson(req);
       if (limited(ip + 'pw', 8)) return json(res, 429, { error: 'Too many attempts. Please try again later.' }), true;
+      if (sbMode()) return json(res, 400, { error: 'Your password is managed in Supabase (Authentication, Users).' }), true;
       if (!checkPw(b.current)) { await new Promise(r => setTimeout(r, 700)); return json(res, 400, { error: 'Your current password is not correct.' }), true; }
       if (!strongPw(b.password)) return json(res, 400, { error: 'Use at least 12 characters (a few random words work well).' }), true;
       auth.hash = hashPw(b.password); auth.epoch = (auth.epoch || 0) + 1; auth.resets = []; store.save('auth');
@@ -459,9 +483,10 @@ module.exports = function (ctx) {
       try { await store.putFile(name, buf); } catch (e) { console.error('upload failed:', e.message); return json(res, 502, { error: 'Could not save the image. Please try again.' }), true; }
       return json(res, 200, { url: '/uploads/' + name }), true;
     }
-    if (p === '/api/admin/me') return json(res, 200, { ok: true, mock: MOCK, owner: OWNER(), username: userName() }), true;
+    if (p === '/api/admin/me') return json(res, 200, { ok: true, mock: MOCK, owner: OWNER(), authMode: sbMode() ? 'supabase' : 'local', username: sbMode() ? ((verify(cookie(req).yy_admin) || {}).u || '') : userName() }), true;
     if (p === '/api/admin/username' && m === 'POST') {   // change the sign-in username (needs the current password)
       const b = await readJson(req); if (limited(ip + 'un', 8)) return json(res, 429, { error: 'Too many attempts. Please try again later.' }), true;
+      if (sbMode()) return json(res, 400, { error: 'Your sign-in e-mail is managed in Supabase (Authentication, Users).' }), true;
       if (!checkPw(b.password)) { await new Promise(r => setTimeout(r, 700)); return json(res, 400, { error: 'Your current password is not correct.' }), true; }
       const u = normUser(b.username); if (!/^[a-z0-9._-]{3,40}$/.test(u)) return json(res, 400, { error: 'Use 3 to 40 letters, numbers, dots, dashes or underscores (no spaces).' }), true;
       auth.username = u; store.save('auth'); log('security', 'Dashboard username was changed'); return json(res, 200, { ok: true, username: u }), true;

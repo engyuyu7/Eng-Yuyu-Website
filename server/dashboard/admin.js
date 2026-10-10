@@ -503,7 +503,9 @@ views.settings = async (main, arg) => {
     const off = $('#tfOff'); if (off) off.onsubmit = guard(async e => { e.preventDefault(); if (!confirm('Turn this off?')) return; await api('/2fa/disable', { method: 'POST', body: { password: $('#tf-pw').value, code: $('#tf-code').value, method: $('#tf-m').value } }); toast('Turned off'); tf(); });
   }; tf().catch(() => {});
   $('#unForm').onsubmit = guard(async ev => { ev.preventDefault(); const r = await api('/username', { method: 'POST', body: { username: $('#un-new').value, password: $('#un-pw').value } }); $('#un-pw').value = ''; $('#un-new').value = r.username; toast('Username saved. Use it next time you sign in.'); });
+  if (me.authMode === 'supabase') { $('#unForm').closest('section').innerHTML = '<h3>Sign-in</h3><p class="help">You sign in with your Supabase user (<b>' + esc(me.username || '') + '</b>). Change the e-mail or password in Supabase under Authentication, Users. Two-step verification below adds a second step on top.</p>'; }
   $('#pwForm').onsubmit = guard(async ev => { ev.preventDefault(); await api('/password', { method: 'POST', body: { current: $('#pw-cur').value, password: $('#pw-new').value } }); $('#pw-cur').value = $('#pw-new').value = ''; toast('Password changed'); });
+  if (me.authMode === 'supabase') $('#pwForm').closest('section').remove();   // the password lives in Supabase
   $$('[data-copy]').forEach(b => b.onclick = () => navigator.clipboard.writeText(b.dataset.copy).then(() => toast('Link copied')));
   $$('[data-wasend]').forEach(b => b.onclick = () => { const id = b.dataset.wasend, x = e.sessions[id], link = location.origin + '/book' + (id ? '/' + id : ''); const msg = e.wa.share.en.replace(/\{session\}/g, x ? x.title : 'a 1:1 session').replace(/\{price\}/g, x ? '($' + x.price + ')' : '').replace(/\{link\}/g, link).replace(/\s{2,}/g, ' '); window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener'); });
   $('#waForm').onsubmit = guard(async ev => { ev.preventDefault(); const wa = { popup: $('#wa-pop').checked, delay: +$('#wa-delay').value }; for (const k of ['greeting', 'reply', 'book', 'ask', 'share']) wa[k] = { en: $('#wa-' + k + '-en').value, so: $('#wa-' + k + '-so').value }; await api('/settings', { method: 'PUT', body: { wa } }); toast('WhatsApp settings saved'); render(); });
@@ -661,6 +663,7 @@ function dialog(html) { const f = $('#dlgForm'); f.innerHTML = html; f.onsubmit 
 $('#dlg').addEventListener('click', e => { if (e.target === $('#dlg')) $('#dlg').close(); });
 
 /* ---------- boot ---------- */
+fetch('/api/admin/auth-mode').then(r => r.json()).then(j => { if (j.mode === 'supabase') { $('label[for=un]').textContent = 'Email'; $('#un').type = 'email'; $('#un').placeholder = 'you@example.com'; } }).catch(() => {});   // sign-in with a Supabase user asks for an e-mail
 async function doLogin(send) {
   $('#loginErr').textContent = '';
   try {
