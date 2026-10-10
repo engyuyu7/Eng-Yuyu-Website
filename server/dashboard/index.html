@@ -17,8 +17,10 @@
     <span class="logo-mark" aria-hidden="true"></span>
     <h1>Eng Yuyu Dashboard</h1>
     <p>Sign in to manage bookings, content and your audience.</p>
+    <label for="un">Username</label>
+    <input id="un" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
     <label for="pw">Password</label>
-    <input id="pw" type="password" autocomplete="current-password" required autofocus>
+    <input id="pw" type="password" autocomplete="current-password" required>
     <div id="codeWrap" hidden><label for="tc">Authentication code</label><input id="tc" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="123456"><p class="help" id="codeMsg" style="margin:4px 0 0">Enter the code, or a recovery code.</p><div id="sendBtns" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn sm" id="sendEmail" hidden>Email me a code</button></div></div>
     <p class="err" id="loginErr" role="alert"></p>
     <button class="btn primary" type="submit">Sign in</button>

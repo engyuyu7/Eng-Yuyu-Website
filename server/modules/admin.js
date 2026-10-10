@@ -48,6 +48,10 @@ module.exports = function (ctx) {
     if (auth.hash) { const [, s, h] = auth.hash.split('$'); return crypto.timingSafeEqual(crypto.scryptSync(pw, Buffer.from(s, 'hex'), 64), Buffer.from(h, 'hex')); }
     return !!PASSWORD && crypto.timingSafeEqual(sha(pw), sha(PASSWORD));
   };
+  // sign-in username: set in Settings > Security (saved in the database), otherwise ADMIN_USERNAME, otherwise "admin"
+  const normUser = s => String(s || '').trim().toLowerCase();
+  const userName = () => normUser(auth.username) || normUser(ENV.ADMIN_USERNAME) || 'admin';
+  const checkUser = u => crypto.timingSafeEqual(sha(normUser(u)), sha(userName()));
   const enabled = () => !!PASSWORD || !!auth.hash;
   // safe status for /api/health (no secrets): why the dashboard is on or off
   ctx.adminInfo = () => ({ enabled: enabled(), ...(enabled() ? {} : { reason: ENV.ADMIN_PASSWORD ? (ENV.ADMIN_PASSWORD.length < 12 ? 'ADMIN_PASSWORD is shorter than 12 characters' : 'unknown') : 'ADMIN_PASSWORD is not set' }) });
@@ -290,7 +294,8 @@ module.exports = function (ctx) {
     if (p === '/api/admin/login' && m === 'POST') {
       if (limited(ip + 'l', 10)) return json(res, 429, { error: 'Too many attempts. Try again later.' }), true;
       const b = await readJson(req);
-      if (!checkPw(b.password)) { await new Promise(r => setTimeout(r, 700)); log('security', 'Failed dashboard sign-in'); return json(res, 401, { error: 'Wrong password' }), true; }
+      const okUser = checkUser(b.username), okPass = checkPw(b.password);   // both are always checked, so the answer never says which one was wrong
+      if (!(okUser && okPass)) { await new Promise(r => setTimeout(r, 700)); log('security', 'Failed dashboard sign-in'); return json(res, 401, { error: 'Wrong username or password' }), true; }
       if (anyOn()) {   // password was right, now the second step
         const need = (error, extra = {}) => json(res, 401, { need2fa: true, methods: methods(), error, ...extra });
         if (b.send === 'email') {   // ask for a code by email (only to the owner's own address)
@@ -326,7 +331,7 @@ module.exports = function (ctx) {
       const rec = (auth.resets || []).find(r => r.exp > Date.now() && crypto.timingSafeEqual(Buffer.from(r.h), Buffer.from(th)));
       if (!rec) return json(res, 400, { error: 'This reset link is invalid or has expired. Please request a new one.' }), true;
       if (!strongPw(b.password)) return json(res, 400, { error: 'Use at least 12 characters (a few random words work well).' }), true;
-      auth.hash = hashPw(b.password); auth.epoch = (auth.epoch || 0) + 1; auth.resets = []; store.save('auth');
+      auth.hash = hashPw(b.password); auth.username = ''; auth.epoch = (auth.epoch || 0) + 1; auth.resets = []; store.save('auth');   // a reset also puts the username back to the default
       log('security', 'Dashboard password was reset by email link');
       sendMail({ to: OWNER(), subject: 'Your dashboard password was changed', text: 'The Eng Yuyu dashboard password was just changed. If this was not you, reset it again right away and check your email account security.', html: '<p>The Eng Yuyu dashboard password was just changed.</p><p>If this was not you, reset it again right away and check your email account security.</p>' }).catch(() => {});
       return json(res, 200, { ok: true }), true;
@@ -451,7 +456,13 @@ module.exports = function (ctx) {
       try { await store.putFile(name, buf); } catch (e) { console.error('upload failed:', e.message); return json(res, 502, { error: 'Could not save the image. Please try again.' }), true; }
       return json(res, 200, { url: '/uploads/' + name }), true;
     }
-    if (p === '/api/admin/me') return json(res, 200, { ok: true, mock: MOCK, owner: OWNER() }), true;
+    if (p === '/api/admin/me') return json(res, 200, { ok: true, mock: MOCK, owner: OWNER(), username: userName() }), true;
+    if (p === '/api/admin/username' && m === 'POST') {   // change the sign-in username (needs the current password)
+      const b = await readJson(req); if (limited(ip + 'un', 8)) return json(res, 429, { error: 'Too many attempts. Please try again later.' }), true;
+      if (!checkPw(b.password)) { await new Promise(r => setTimeout(r, 700)); return json(res, 400, { error: 'Your current password is not correct.' }), true; }
+      const u = normUser(b.username); if (!/^[a-z0-9._-]{3,40}$/.test(u)) return json(res, 400, { error: 'Use 3 to 40 letters, numbers, dots, dashes or underscores (no spaces).' }), true;
+      auth.username = u; store.save('auth'); log('security', 'Dashboard username was changed'); return json(res, 200, { ok: true, username: u }), true;
+    }
     if (p === '/api/admin/summary') return json(res, 200, summary(Math.min(365, Math.max(7, +url.searchParams.get('range') || 30)))), true;
 
     // bookings

@@ -65,7 +65,7 @@ const deltaChip = d => d === null || d === undefined ? '' : `<span class="delta 
 /* ---------- shell ---------- */
 let state = { page: 'overview', range: 30, bookingFilter: 'all', badge: {} };
 function showLogin(which = 'loginForm') { $('#app').hidden = true; $('#login').hidden = false; ['loginForm', 'forgotForm', 'resetForm'].forEach(id => { $('#' + id).hidden = id !== which; });
-  const f = { loginForm: '#pw', resetForm: '#np1' }[which]; if (f) $(f).focus(); }
+  const f = { loginForm: '#un', resetForm: '#np1' }[which]; if (f) $(f).focus(); }
 function showApp() { $('#login').hidden = true; $('#app').hidden = false; }
 const PRIMARY = ['overview', 'bookings', 'blog', 'messages'];
 function renderNav() {
@@ -442,6 +442,7 @@ async function editEmailCopy(type) {
 const SET_GROUPS = [['booking', 'Booking'], ['payments', 'Payments'], ['emails', 'Emails'], ['chat', 'WhatsApp & contact'], ['security', 'Security'], ['connections', 'Connections']];
 const SET_INTRO = { booking: 'When people can book, your session types and prices, and the automatic reminders.', payments: 'Sifalo Pay mode and API keys, test, sandbox or live.', emails: 'Edit the wording of every branded email in English and Somali, and send yourself a test.', chat: 'Your WhatsApp number, the chat popup, ready-made messages and booking links, plus your intro video.', security: 'Two-step verification and your dashboard password.', connections: 'Google (Calendar, Meet, Gmail) and payment connection status.' };
 views.settings = async (main, arg) => {
+  const me = await api('/me').catch(() => ({}));
   const s = await api('/settings'), e = s.effective, a = e.availability, sy = s.system;
   const grp = SET_GROUPS.some(g => g[0] === arg) ? arg : 'booking';
   const todo = { chat: !e.whatsapp, payments: !(sy.sifalo), connections: !(sy.google) };
@@ -459,6 +460,7 @@ views.settings = async (main, arg) => {
   <section data-g="booking" class="card"><h3>Sessions <small>names, wording and prices on the booking page</small></h3><form class="form" id="ssForm"><div id="ssList"></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="button" id="ssAdd">+ Add a session</button><button class="btn primary" type="submit">Save sessions</button></div><p class="help">Changes appear on the booking page straight away. Prices and length apply to new bookings. Switch a session off to hide it, or delete it, existing bookings keep their original name.</p></form></section>
   <section data-g="chat" class="card"><h3>Contact &amp; intro video</h3><form class="form" id="siteForm">${field('v-wa', 'WhatsApp number', e.whatsapp, { type: 'tel', help: 'Full international number, digits only, e.g. 252612345678. Shows a WhatsApp button on every page (and in the footer and contact form). Leave empty to hide it.' })}${field('v-intro', 'Intro video (YouTube link)', e.introVideo ? 'https://youtu.be/' + e.introVideo : '', { help: 'A 30–60 second “who I am and how a session works” clip. Shows on the home page and from the booking page. Leave empty to hide it.' })}<div><button class="btn primary" type="submit">Save</button></div></form></section>
   <section data-g="security" class="card" id="tfCard"><h3>Two-step verification <small>protects your sign-in</small></h3><div id="tfBody"><p class="help">Loading…</p></div></section>
+  <section data-g="security" class="card"><h3>Username <small>used to sign in</small></h3><form class="form" id="unForm"><div class="two">${field('un-new', 'Username', me.username || 'admin', { max: 40, help: 'Letters, numbers, dots, dashes or underscores (3 to 40).' })}${field('un-pw', 'Current password', '', { type: 'password' })}</div><div><button class="btn primary" type="submit">Save username</button></div></form></section>
   <section data-g="security" class="card"><h3>Password</h3><form class="form" id="pwForm"><div class="two">${field('pw-cur', 'Current password', '', { type: 'password' })}${field('pw-new', 'New password (12+ characters)', '', { type: 'password' })}</div><div><button class="btn primary" type="submit">Change password</button></div><p class="help">Forgot it? Use “Forgot password?” on the sign-in page, a reset link goes to your owner email above.</p></form></section>
   <section data-g="chat" class="card" id="waCard"><h3>WhatsApp <small>chat popup · ready-made messages · booking links</small></h3>
     ${e.whatsapp ? '' : '<p class="help" style="color:var(--bad,#c0262b)"><b>Add your WhatsApp number</b> in “Contact &amp; intro video” above: the popup and WhatsApp buttons appear once it is saved.</p>'}
@@ -500,6 +502,7 @@ views.settings = async (main, arg) => {
     const sm = $('#tfSendMail'); if (sm) sm.onclick = guard(async () => { await api('/2fa/challenge', { method: 'POST', body: { via: 'email' } }); toast('Code emailed'); });
     const off = $('#tfOff'); if (off) off.onsubmit = guard(async e => { e.preventDefault(); if (!confirm('Turn this off?')) return; await api('/2fa/disable', { method: 'POST', body: { password: $('#tf-pw').value, code: $('#tf-code').value, method: $('#tf-m').value } }); toast('Turned off'); tf(); });
   }; tf().catch(() => {});
+  $('#unForm').onsubmit = guard(async ev => { ev.preventDefault(); const r = await api('/username', { method: 'POST', body: { username: $('#un-new').value, password: $('#un-pw').value } }); $('#un-pw').value = ''; $('#un-new').value = r.username; toast('Username saved. Use it next time you sign in.'); });
   $('#pwForm').onsubmit = guard(async ev => { ev.preventDefault(); await api('/password', { method: 'POST', body: { current: $('#pw-cur').value, password: $('#pw-new').value } }); $('#pw-cur').value = $('#pw-new').value = ''; toast('Password changed'); });
   $$('[data-copy]').forEach(b => b.onclick = () => navigator.clipboard.writeText(b.dataset.copy).then(() => toast('Link copied')));
   $$('[data-wasend]').forEach(b => b.onclick = () => { const id = b.dataset.wasend, x = e.sessions[id], link = location.origin + '/book' + (id ? '/' + id : ''); const msg = e.wa.share.en.replace(/\{session\}/g, x ? x.title : 'a 1:1 session').replace(/\{price\}/g, x ? '($' + x.price + ')' : '').replace(/\{link\}/g, link).replace(/\s{2,}/g, ' '); window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener'); });
@@ -661,10 +664,10 @@ $('#dlg').addEventListener('click', e => { if (e.target === $('#dlg')) $('#dlg')
 async function doLogin(send) {
   $('#loginErr').textContent = '';
   try {
-    const r = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'yy-admin' }, body: JSON.stringify({ password: $('#pw').value, code: send ? '' : $('#tc').value, send }) }); const j = await r.json();
-    if (j.need2fa) { $('#codeWrap').hidden = false; $('#pw').readOnly = true; $('#sendEmail').hidden = !j.methods.includes('email'); $('#codeMsg').textContent = j.sent ? j.error : (j.methods.includes('app') ? 'Enter the 6-digit code from your authenticator app, or a recovery code.' : 'Choose how to get your code, then enter it below.'); if (!j.sent && $('#tc').value) $('#loginErr').textContent = j.error; $('#tc').focus(); return; }
+    const r = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'yy-admin' }, body: JSON.stringify({ username: $('#un').value, password: $('#pw').value, code: send ? '' : $('#tc').value, send }) }); const j = await r.json();
+    if (j.need2fa) { $('#codeWrap').hidden = false; $('#pw').readOnly = true; $('#un').readOnly = true; $('#sendEmail').hidden = !j.methods.includes('email'); $('#codeMsg').textContent = j.sent ? j.error : (j.methods.includes('app') ? 'Enter the 6-digit code from your authenticator app, or a recovery code.' : 'Choose how to get your code, then enter it below.'); if (!j.sent && $('#tc').value) $('#loginErr').textContent = j.error; $('#tc').focus(); return; }
     if (!r.ok) throw new Error(j.error);
-    $('#pw').value = ''; $('#tc').value = ''; $('#codeWrap').hidden = true; $('#pw').readOnly = false; showApp(); render();
+    $('#pw').value = ''; $('#tc').value = ''; $('#codeWrap').hidden = true; $('#pw').readOnly = false; $('#un').readOnly = false; showApp(); render();
   } catch (err) { $('#loginErr').textContent = err.message || 'Could not sign in'; }
 }
 $('#loginForm').onsubmit = e => { e.preventDefault(); doLogin(''); };

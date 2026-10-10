@@ -94,7 +94,7 @@ const cut = (t, n) => { t = String(t); if (t.length <= n) return t; const k = t.
     for (const m of h.matchAll(new RegExp(`href="/${lang}/${sec}/([^"?]+)"`, 'g'))) if (!slugs[k].includes(m[1])) slugs[k].push(m[1]);
   }
   console.log(`found ${slugs.blog.length} articles and ${slugs.events.length} events`);
-  const l = await fetch(SITE + '/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'yy-admin' }, body: JSON.stringify({ password: PASSWORD }) });
+  const l = await fetch(SITE + '/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'yy-admin' }, body: JSON.stringify({ username: process.env.ADMIN_USERNAME || 'admin', password: PASSWORD }) });
   if (!l.ok) throw new Error('Could not sign in to ' + SITE + ' (wrong password, or two-step verification is on: turn it off for the import).');
   cookie = l.headers.get('set-cookie').split(';')[0];
 
