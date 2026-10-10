@@ -49,6 +49,8 @@ module.exports = function (ctx) {
     return !!PASSWORD && crypto.timingSafeEqual(sha(pw), sha(PASSWORD));
   };
   const enabled = () => !!PASSWORD || !!auth.hash;
+  // safe status for /api/health (no secrets): why the dashboard is on or off
+  ctx.adminInfo = () => ({ enabled: enabled(), ...(enabled() ? {} : { reason: ENV.ADMIN_PASSWORD ? (ENV.ADMIN_PASSWORD.length < 12 ? 'ADMIN_PASSWORD is shorter than 12 characters' : 'unknown') : 'ADMIN_PASSWORD is not set' }) });
 
   // ---- two-step verification (TOTP, RFC 6238: works with Google Authenticator, Microsoft Authenticator, Authy, 1Password …) ----
   const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
